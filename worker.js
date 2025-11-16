@@ -91,7 +91,7 @@ export default {
     res.headers.set('Access-Control-Allow-Headers', '*');
     res.headers.set('Access-Control-Allow-Credentials', origin === '*' ? 'false' : 'true');
     res.headers.set('Access-Control-Max-Age', '86400');
-    return response;
+    return res;
   },
   
   homePage(request) {
