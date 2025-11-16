@@ -33,7 +33,7 @@ export default {
       return this.homePage(request);
     }
     
-    const arr = ['x-forwarded-proto', 'upstream-host', 'real-referer', 'real-origin'];
+    const arr = ['x-forwarded-proto', 'x-real-ip', 'upgrade-insecure-requests', 'upstream-host', 'real-referer', 'real-origin'];
     let headers = new Headers();
     for (let k of _headers.keys()) {
       k = k.toLowerCase();
@@ -57,31 +57,28 @@ export default {
       body: request.body,
       redirect: 'manual',
     });
-    let res;
-    if (!r.body) {
-      res = new Response(r.body, r);
-    } else {
-      const reader = r.body.getReader();
-      res = new Response(
-        new ReadableStream({
-          start(controller) {
-            return pump();
-            function pump() {
-              return reader.read().then(({done, value}) => {
-                if (done) {
-                  controller.close();
-                  return;
-                }
-                controller.enqueue(value);
-                return pump();
-              })
-            }
-          }
-        }),
-        r
-      );
-    }
+    let res = new Response(this.streamBody(r.body), r);
     return this.setHeaders(request, res);
+  },
+  
+  streamBody(body) {
+    if (!body) return null;
+    const reader = body.getReader();
+    return new ReadableStream({
+      start(controller) {
+        return pump();
+        function pump() {
+          return reader.read().then(({done, value}) => {
+            if (done) {
+              controller.close();
+              return;
+            }
+            controller.enqueue(value);
+            return pump();
+          })
+        }
+      }
+    });
   },
   
   setHeaders(request, res) {
@@ -89,7 +86,7 @@ export default {
     res.headers.set('Access-Control-Allow-Origin', origin);
     res.headers.set('Access-Control-Allow-Methods', '*');
     res.headers.set('Access-Control-Allow-Headers', '*');
-    res.headers.set('Access-Control-Allow-Credentials', origin === '*' ? 'false' : 'true');
+    res.headers.set('Access-Control-Allow-Credentials', 'true');
     res.headers.set('Access-Control-Max-Age', '86400');
     return res;
   },
