@@ -1,0 +1,102 @@
+/**
+ * Welcome to Cloudflare Workers! This is your first Durable Objects application.
+ *
+ * - Run `npm run dev` in your terminal to start a development server
+ * - Open a browser tab at http://localhost:8787/ to see your Durable Object in action
+ * - Run `npm run deploy` to publish your application
+ *
+ * Bind resources to your worker in `wrangler.jsonc`. After adding bindings, a type definition for the
+ * `Env` object can be regenerated with `npm run cf-typegen`.
+ *
+ * Learn more at https://developers.cloudflare.com/durable-objects
+ */
+
+export default {
+  /**
+   * This is the standard fetch handler for a Cloudflare Worker
+   *
+   * @param request - The request submitted to the Worker from the client
+   * @param env - The interface to reference bindings declared in wrangler.jsonc
+   * @param ctx - The execution context of the Worker
+   * @returns The response to be sent back to the client
+   */
+  async fetch(request, env, ctx) {
+    if (request.method == 'OPTIONS') {
+      return this.setHeaders(request, new Response(null, { status: 204 }));
+    }
+    
+    let url = new URL(request.url);
+    let searchParams = url.searchParams;
+    const _headers = request.headers;
+    const upstream_host = _headers.get('upstream-host') || searchParams.get('upstream_host');
+    if (!upstream_host) {
+      return this.homePage(request);
+    }
+    
+    const arr = ['x-forwarded-proto', 'upstream-host', 'real-referer', 'real-origin'];
+    let headers = new Headers();
+    for (let k of _headers.keys()) {
+      k = k.toLowerCase();
+      if (arr.includes(k)) continue;
+      if (k.startsWith('sec-')) continue;
+      if (k.startsWith('cf-')) continue;
+      headers.set(k, _headers.get(k));
+    }
+    if (_headers.get('real-origin'))
+      headers.set('origin', _headers.get('real-origin'));
+    if (_headers.get('real-referer'))
+      headers.set('referer', _headers.get('real-referer'));
+    
+    url.host = upstream_host;
+    const r = await fetch(url, {
+      method: request.method,
+      headers: headers,
+      body: request.body,
+      redirect: 'manual',
+    });
+    let res;
+    if (!r.body) {
+      res = new Response(r.body, r);
+    } else {
+      const reader = r.body.getReader();
+      res = new Response(
+        new ReadableStream({
+          start(controller) {
+            return pump();
+            function pump() {
+              return reader.read().then(({done, value}) => {
+                if (done) {
+                  controller.close();
+                  return;
+                }
+                controller.enqueue(value);
+                return pump();
+              })
+            }
+          }
+        }),
+        r
+      );
+    }
+    return this.setHeaders(request, res);
+  },
+  
+  setHeaders(request, res) {
+    const origin = request.headers.get('origin') || '*';
+    res.headers.set('Access-Control-Allow-Origin', origin);
+    res.headers.set('Access-Control-Allow-Methods', '*');
+    res.headers.set('Access-Control-Allow-Headers', '*');
+    res.headers.set('Access-Control-Allow-Credentials', origin === '*' ? 'false' : 'true');
+    res.headers.set('Access-Control-Max-Age', '86400');
+    return response;
+  },
+  
+  homePage(request) {
+    let res = new Response('<html><head><title>Fuck CORS</title></head><body>Hello World!</body></html>', {
+      headers: {
+        'Content-Type': 'text/html',
+      },
+    })
+    return this.setHeaders(request, res);
+  },
+}
