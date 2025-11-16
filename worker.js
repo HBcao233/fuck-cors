@@ -42,12 +42,15 @@ export default {
       if (k.startsWith('cf-')) continue;
       headers.set(k, _headers.get(k));
     }
-    if (_headers.get('real-origin'))
-      headers.set('origin', _headers.get('real-origin'));
-    if (_headers.get('real-referer'))
-      headers.set('referer', _headers.get('real-referer'));
+    const real_origin = _headers.get('real-origin') || searchParams.get('real_origin');
+    const real_referer = _headers.get('real-referer') || searchParams.get('real_referer');
+    if (real_origin) headers.set('origin', real_origin);
+    if (real_referer) headers.set('referer', real_referer);
     
     url.host = upstream_host;
+    url.searchParams.delete('upstream_host');
+    url.searchParams.delete('real_origin');
+    url.searchParams.delete('real_referer');
     const r = await fetch(url, {
       method: request.method,
       headers: headers,
