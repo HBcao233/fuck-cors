@@ -57,28 +57,8 @@ export default {
       body: request.body,
       redirect: 'manual',
     });
-    let res = new Response(this.streamBody(r.body), r);
+    let res = new Response(r.body, r);
     return this.setHeaders(request, res);
-  },
-  
-  streamBody(body) {
-    if (!body) return null;
-    const reader = body.getReader();
-    return new ReadableStream({
-      start(controller) {
-        return pump();
-        function pump() {
-          return reader.read().then(({done, value}) => {
-            if (done) {
-              controller.close();
-              return;
-            }
-            controller.enqueue(value);
-            return pump();
-          })
-        }
-      }
-    });
   },
   
   setHeaders(request, res) {
