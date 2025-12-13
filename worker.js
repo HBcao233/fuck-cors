@@ -72,7 +72,7 @@ export default {
       ...new URL(request.url).searchParams,
       ...request.headers,
     ]);
-    for (const [k, v] of params) {
+    for (const [k, v] of Object.entries(params)) {
       const match = k.match(/^[sS][eE][tT][-_][hH][eE][aA][dD][eE][rR][-_]([0-9a-zA-Z-_]+)$/);
       if (match) {
         res.headers.set(match[1], v);
