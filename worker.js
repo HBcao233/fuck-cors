@@ -68,6 +68,16 @@ export default {
     res.headers.set('Access-Control-Allow-Headers', '*');
     res.headers.set('Access-Control-Allow-Credentials', 'true');
     res.headers.set('Access-Control-Max-Age', '86400');
+    
+    if (res.headers.get('location')) {
+      let u = new URL(res.headers.get('location'));
+      const host = u.host;
+      u.host = new URL(request.url).host;
+      u.searchParams.set('upstream_host', host);
+      res.headers.set('location', u.toString());
+    }
+    
+    // 设置 Set-Header-<HeaderName> 
     const params = Object.fromEntries([
       ...new URL(request.url).searchParams,
       ...request.headers,
