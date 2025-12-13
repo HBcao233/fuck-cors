@@ -28,28 +28,38 @@ Additionally, `fuck-cors` automatically strips request headers starting with `se
 
 ## API
 
-### Query Parameter: `upstream_host`
+### Query Parameter
+#### `upstream_host`
 Specify the target host you want to proxy the request to.
 
-### Query Parameter: `real_origin`
+#### `real_origin`
 Override the `Origin` header in the actual outgoing request.  
 This is typically restricted by web APIs when set directly from the browser.
 
-### Query Parameter: `real_referer`
+#### `real_referer`
 Override the `Referer` header in the actual outgoing request.  
 This is also commonly restricted when attempted from browser-side code.
 
+#### `Set-Header-<HeaderName>`
+Override the `<HeaderName>` response header.
+For example, `?Set-Header-Content-Disposition=attachment; filename="filename.jpg"` can help you download a picture.
+
+`<HeaderName>` allow `/^[0-9a-zA-Z-_]+$/`
+
 ---
 
-### Header: `upstream-host`
+### Header
+#### `upstream-host`
 Same as the `upstream_host` query parameter.
 
-### Header: `real-origin`
+#### `real-origin`
 Same as the `real_origin` query parameter.
 
-### Header: `real-referer`
+#### `real-referer`
 Same as the `real_referer` query parameter.
 
+#### `Set-Header-<HeaderName>`
+Same as the `Set-Header-<HeaderName>` query parameter.
 ---
 
 **Note:**  

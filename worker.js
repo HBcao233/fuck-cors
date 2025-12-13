@@ -68,6 +68,16 @@ export default {
     res.headers.set('Access-Control-Allow-Headers', '*');
     res.headers.set('Access-Control-Allow-Credentials', 'true');
     res.headers.set('Access-Control-Max-Age', '86400');
+    const params = Object.fromEntries([
+      ...new URL(request.url).searchParams,
+      ...request.headers,
+    ]);
+    for (const [k, v] of params) {
+      const match = k.match(/^[sS][eE][tT][-_][hH][eE][aA][dD][eE][rR][-_]([0-9a-zA-Z-_]+)$/);
+      if (match) {
+        res.headers.set(match[1], v);
+      }
+    }
     return res;
   },
   
