@@ -1,15 +1,27 @@
-/**
- * Welcome to Cloudflare Workers! This is your first Durable Objects application.
- *
- * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your Durable Object in action
- * - Run `npm run deploy` to publish your application
- *
- * Bind resources to your worker in `wrangler.jsonc`. After adding bindings, a type definition for the
- * `Env` object can be regenerated with `npm run cf-typegen`.
- *
- * Learn more at https://developers.cloudflare.com/durable-objects
- */
+// 需要排除的请求头
+const EXCLUDED_REQUEST_HEADERS = [
+  'host',
+  'connection',
+  'keep-alive',
+  'proxy-authenticate',
+  'proxy-authorization',
+  'te',
+  'trailers',
+  'transfer-encoding',
+  'upgrade',
+  'x-forwarded-proto', 
+  'x-real-ip', 
+  'upgrade-insecure-requests', 
+  'upstream-host', 
+  'real-referer', 
+  'real-origin',
+];
+
+// 需要排除的响应头
+EXCLUDED_RESPONSE_HEADERS = [
+  "transfer-encoding",
+  "connection",
+];
 
 export default {
   /**
@@ -33,11 +45,10 @@ export default {
       return this.homePage(request);
     }
     
-    const arr = ['x-forwarded-proto', 'x-real-ip', 'upgrade-insecure-requests', 'upstream-host', 'real-referer', 'real-origin'];
     let headers = new Headers();
     for (let k of _headers.keys()) {
       k = k.toLowerCase();
-      if (arr.includes(k)) continue;
+      if (EXCLUDED_REQUEST_HEADERS.includes(k)) continue;
       if (k.startsWith('sec-')) continue;
       if (k.startsWith('cf-')) continue;
       headers.set(k, _headers.get(k));
@@ -63,6 +74,9 @@ export default {
   
   setHeaders(request, res) {
     const origin = request.headers.get('origin') || '*';
+    for (const k in EXCLUDED_RESPONSE_HEADERS) {
+      res.headers.delete(k);
+    }
     res.headers.set('Access-Control-Allow-Origin', origin);
     res.headers.set('Access-Control-Allow-Methods', '*');
     res.headers.set('Access-Control-Allow-Headers', '*');

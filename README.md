@@ -1,11 +1,4 @@
-<p align="center">
-  <img src="https://avatars.githubusercontent.com/u/41500176?v=4&w=3840&q=75" alt="" width="100">
-</p>
-<div align="center">
-
-# Fuck CORS
-
-</div>
+<h1 align="center">FUCK CORS</h1>
 <p align="center">
   <a href="https://raw.githubusercontent.com/hbcao233/fuck-cors/main/LICENSE">
     <img src="https://img.shields.io/github/license/hbcao233/fuck-cors" alt="MIT License">
