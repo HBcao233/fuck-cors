@@ -18,7 +18,7 @@ const EXCLUDED_REQUEST_HEADERS = [
 ];
 
 // 需要排除的响应头
-EXCLUDED_RESPONSE_HEADERS = [
+const EXCLUDED_RESPONSE_HEADERS = [
   "transfer-encoding",
   "connection",
 ];
