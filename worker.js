@@ -40,7 +40,7 @@ export default {
     let url = new URL(request.url);
     let searchParams = url.searchParams;
     const _headers = request.headers;
-    const upstream_host = _headers.get('upstream-host') || searchParams.get('upstream_host');
+    const upstream_host = searchParams.get('upstream_host') || _headers.get('upstream-host');
     if (!upstream_host) {
       return this.homePage(request);
     }
@@ -53,8 +53,8 @@ export default {
       if (k.startsWith('cf-')) continue;
       headers.set(k, _headers.get(k));
     }
-    const real_origin = _headers.get('real-origin') || searchParams.get('real_origin');
-    const real_referer = _headers.get('real-referer') || searchParams.get('real_referer');
+    const real_origin = searchParams.get('real_origin') || _headers.get('real-origin');
+    const real_referer = searchParams.get('real_referer') || _headers.get('real-referer');
     if (real_origin) headers.set('origin', real_origin);
     if (real_referer) headers.set('referer', real_referer);
     
