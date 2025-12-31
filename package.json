@@ -1,0 +1,23 @@
+{
+  "name": "fuck-cors",
+  "version": "0.0.1",
+  "publishConfig": {
+    "access": "private"
+  },
+  "description": "fuck cors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HBcao233/fuck-cors.git",
+    "directory": "."
+  },
+  "author": "HBcao233",
+  "homepage": "https://github.com/HBcao233/fuck-cors",
+  "main": "worker.js",
+  "module": "worker.js",
+  "type": "module",
+  "exports": {},
+  "devDependencies": {
+    "wrangler": "^4.54.0"
+  }
+}
